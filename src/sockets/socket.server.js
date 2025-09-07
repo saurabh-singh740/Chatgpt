@@ -37,11 +37,15 @@ function initSocketServer(httpServer) {
         role: "user"
       });
 
-      const chatHistory = await messageModel.find({ 
-        chat:messagepayload.chatId
+      const chatHistory = (
+  await messageModel
+    .find({ chat: messagepayload.chatId })
+    .sort({ createdAt: 1 })
+    .limit(20)
+    .lean()
+).reverse();
 
-      })
-      console.log("chat History:",);
+
       
 
       const response = await aiService.generateResponse(chatHistory.map(item=>{

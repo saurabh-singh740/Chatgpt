@@ -11,13 +11,13 @@ const messageSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:"chat"
     },
-    contents:{
+    content:{
         type:String,
         required:true   
     },
     role:{
         type:String,
-        enum:["user","model"],
+        enum:["user","model","system"],
         default:"user"
     }
 },{timestamps:true

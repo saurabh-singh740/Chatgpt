@@ -1,10 +1,10 @@
 const { Server } = require("socket.io");
 const cookie = require("cookie");
 const jwt = require("jsonwebtoken");
+const {userModel} = require("../models/user.model");
 const aiService = require("../services/ai.service");
 const messageModel = require("../models/message.model");
-const { text } = require("express");
-const { querymemory, creatememory} = require("../services/vector.service");
+const { createMemory, queryMemory} = require("../services/vector.service");
 
 function initSocketServer(httpServer) {
   const io = new Server(httpServer, {});
@@ -29,21 +29,24 @@ function initSocketServer(httpServer) {
 
   io.on("connection", (socket) => {
   socket.on("ai-message", async (messagepayload) => {
-    console.log("Received ai-message:", messagepayload);
+    
 
     try {
-      // 1. Vector generate karo
-      const vector = await aiService.generatevector(messagepayload.content);
-      console.log("✅ Generated vector length:", vector.length);
-console.log("✅ Vector:", vector);
+      
+      
+
+      // await messageModel.create({
+      //   chat: messagepayload.chat,
+      //   role: "user", 
+      //   content: messagepayload.content,
+      //   user: socket.userId
+      // });
+      
+
+      const vectors = await aiService.generateVector(messagepayload.contents);
+      console.log("Generated Vectors:", vectors);
 
 
-      // 2. Memory save karo
-      await creatememory({
-        vector: vector,
-        metadata: { user: socket.userId, chat: messagepayload.chat },
-        messageid: messagepayload.messageid
-      });
 
       // 3. Chat history nikalo
       const chatHistory = (
@@ -54,14 +57,27 @@ console.log("✅ Vector:", vector);
       ).reverse();
 
       // 4. AI response banao
-      const response = await aiService.generateResponse(
-        chatHistory.map(item => ({
-          role: item.role,
-          parts: [{ text: item.contents }]
-        }))
+      const response = await aiService.generateResponse(chatHistory.map(item=>{
+        return { 
+          role: item.role, 
+          parts: [{text:item.content} ]
+        }
+      })
       );
+      
+      // await messageModel.create({
+      //   chat: messagepayload.chat,
+      //   role: "model", 
+      //   content: response,
+      //   user: socket.userId
+      // });
+
+
+
 
       // 5. Client ko bhejo
+      
+      
       socket.emit("ai-response", {
         message: response,
         contents: messagepayload.contents

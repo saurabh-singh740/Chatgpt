@@ -1,96 +1,120 @@
 const { Server } = require("socket.io");
-const cookie = require("cookie");
+const cookie = require("cookie")
 const jwt = require("jsonwebtoken");
-const {userModel} = require("../models/user.model");
-const aiService = require("../services/ai.service");
+const userModel = require("../models/user.model");
+const aiService = require("../services/ai.service")
 const messageModel = require("../models/message.model");
-const { createMemory, queryMemory} = require("../services/vector.service");
+const { createMemory, queryMemory } = require("../services/vector.service")
+
+
 
 function initSocketServer(httpServer) {
-  const io = new Server(httpServer, {});
 
-  // socket middleware
-  io.use((socket, next) => {
-    const cookies = cookie.parse(socket.handshake.headers?.cookie || "");
-    console.log("Socket Connection Cookies:", cookies);
+    const io = new Server(httpServer, {})
 
-    if (!cookies.token) {
-      return next(new Error("Authentication error: No token provided"));
-    }
+    io.use(async (socket, next) => {
 
-    try {
-      const decoded = jwt.verify(cookies.token, process.env.JWT_SECRET);
-      socket.userId = decoded.id;
-      next();
-    } catch (err) {
-      return next(new Error("Authentication error: Invalid token"));
-    }
-  });
+        const cookies = cookie.parse(socket.handshake.headers?.cookie || "");
 
-  io.on("connection", (socket) => {
-  socket.on("ai-message", async (messagepayload) => {
-    
-
-    try {
-      
-      
-
-      // await messageModel.create({
-      //   chat: messagepayload.chat,
-      //   role: "user", 
-      //   content: messagepayload.content,
-      //   user: socket.userId
-      // });
-      
-
-      const vectors = await aiService.generateVector(messagepayload.contents);
-      console.log("Generated Vectors:", vectors);
-
-
-
-      // 3. Chat history nikalo
-      const chatHistory = (
-        await messageModel.find({ chat: messagepayload.chat })
-          .sort({ createdAt: 1 })
-          .limit(20)
-          .lean()
-      ).reverse();
-
-      // 4. AI response banao
-      const response = await aiService.generateResponse(chatHistory.map(item=>{
-        return { 
-          role: item.role, 
-          parts: [{text:item.content} ]
+        if (!cookies.token) {
+            next(new Error("Authentication error: No token provided"));
         }
-      })
-      );
-      
-      // await messageModel.create({
-      //   chat: messagepayload.chat,
-      //   role: "model", 
-      //   content: response,
-      //   user: socket.userId
-      // });
+
+        try {
+
+            const decoded = jwt.verify(cookies.token, process.env.JWT_SECRET);
+
+            const user = await userModel.findById(decoded.id);
+
+            socket.user = user
+
+            next()
+
+        } catch (err) {
+            next(new Error("Authentication error: Invalid token"));
+        }
+
+    })
+
+    io.on("connection", (socket) => {
+        console.log("New socket connection:", socket.id);
+
+
+        socket.on("ai-message", async (messagePayload) => {
+
+            
+            const message = await messageModel.create({
+                chat: messagePayload.chat,
+                user: socket.user._id,
+                content: messagePayload.content,
+                role: "user" 
+            });
+
+            const vectors = await aiService.generateVector(messagePayload.content);
+
+            const memory = await queryMemory({
+                queryVector: vectors,
+                limit: 3,
+                metadata: {}
+            });
+
+            await createMemory({
+                vectors,
+                messageId: message._id, 
+                metadata: {
+                    chat: messagePayload.chat,
+                    user: socket.user._id,
+                    text: messagePayload.content
+                }
+            })
 
 
 
+            console.log(memory)
 
-      // 5. Client ko bhejo
-      
-      
-      socket.emit("ai-response", {
-        message: response,
-        contents: messagepayload.contents
-      });
+            const chatHistory = await messageModel.find({
+                chat: messagePayload.chat
+            })
 
-      console.log("Sent ai-response:", response);
-    } catch (err) {
-      console.error("🔥 Error in ai-message handler:", err.message);
-      socket.emit("ai-error", { error: err.message });
-    }
-  });
-});
-  return io;
+
+
+            const response = await aiService.generateResponse(chatHistory.map(item => {
+                return {
+                    role: item.role,
+                    parts: [ { text: item.content } ]
+                }
+            }))
+
+            const responseMessage = await messageModel.create({
+                chat: messagePayload.chat,
+                user: socket.user._id,
+                content: response,
+                role: "model"
+            })
+
+            const responseVectors = await aiService.generateVector(response)
+            console.log("AI response vector:", responseVectors);
+
+            await createMemory({
+                vectors: responseVectors,
+                messageId: responseMessage._id,
+                metadata: {
+                    chat: messagePayload.chat,
+                    user: socket.user._id,
+                    text: response
+                }
+            })
+
+            socket.emit('ai-response', {
+                content: response,
+                chat: messagePayload.chat
+            })
+
+        })
+
+    })
+
+
+
 }
-
 module.exports = { initSocketServer };

@@ -1,0 +1,167 @@
+/* Container & flow */
+.messages {
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    max-width: 820px;
+}
+
+.messages::-webkit-scrollbar{
+    display: none;
+}
+
+.msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 780px;
+    position: relative;
+}
+
+.msg-user {
+    align-self: flex-end;
+}
+
+.msg-role {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+/* Bubble styling refined */
+.msg-bubble {
+    padding: var(--space-4) var(--space-5);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-alt);
+    border-radius: 14px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: var(--text-sm);
+}
+
+.msg-user .msg-bubble {
+    background: linear-gradient(180deg, #1f1f1f, #161616);
+    color: #fafafa;
+    border: 1px solid #2a2a2a;
+}
+
+.minimal .msg-user .msg-bubble {
+    background: #111;
+    border-color: #2a2a2a;
+}
+
+.msg-ai .msg-bubble {
+    background: #0d0d0d;
+    border-color: #1e1e1e;
+}
+
+.msg-ai.pending .msg-bubble {
+    display: inline-flex;
+    gap: 6px;
+}
+
+.msg-error .msg-bubble {
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+/* Actions bar shown on hover / focus */
+.msg-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-fast);
+}
+
+.msg:hover .msg-actions,
+.msg:focus-within .msg-actions {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.msg-actions button {
+    width: 30px;
+    height: 30px;
+    background: #0d0d0d;
+    border: 1px solid #1e1e1e;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #6a6a6a;
+    padding: 0;
+}
+
+.msg-actions button:hover {
+    background: #151515;
+    color: #ffffff;
+}
+
+.msg-actions button:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+.msg-actions svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 1.75;
+}
+
+/* Subtle fade in for new AI messages */
+.msg-ai .msg-bubble {
+    animation: fadeIn .25s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Typing dots */
+.typing-dots span {
+    width: 6px;
+    height: 6px;
+    background: currentColor;
+    opacity: .6;
+    border-radius: 50%;
+    animation: blink 1s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: .2s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: .4s;
+}
+
+@keyframes blink {
+
+    0%,
+    80%,
+    100% {
+        opacity: .2;
+    }
+
+    40% {
+        opacity: 1;
+    }
+}

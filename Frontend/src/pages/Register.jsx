@@ -1,144 +1,84 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import ThemeToggle from '../components/ThemeToggle';
-import '../styles/variables.css';
-import '../styles/forms.css';
 import axios from 'axios';
 
 const Register = () => {
-  const [formData, setFormData] = useState({
-    firstname: '',
-    lastname: '',
-    email: '',
-    password: '',
-    confirmpassword: ''
-  });
-  const navigate = useNavigate();
+    const [ form, setForm ] = useState({ email: '', firstname: '', lastname: '', password: '' });
+    const [ submitting, setSubmitting ] = useState(false);
+    const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (formData.password !== formData.confirmpassword) {
-      alert("Passwords do not match!");
-      return;
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setForm(f => ({ ...f, [ name ]: value }));
     }
 
-    try {
-      const res = await axios.post(
-        "http://localhost:3000/api/auth/register",
-        {
-          email: formData.email,
-          fullname: {
-            firstname: formData.firstname,
-            lastname: formData.lastname
-          },
-          password: formData.password
-        },
-        { withCredentials: true }
-      );
+    async function handleSubmit(e) {
+        e.preventDefault();
+        setSubmitting(true);
+        console.log(form);
 
-      console.log("Registration response:", res.data);
+        axios.post("http://localhost:3000/api/auth/register", {
+            email: form.email,
+            fullName: {
+                firstName: form.firstname,
+                lastName: form.lastname
+            },
+            password: form.password
+        }, {
+            withCredentials: true
+        }).then((res) => {
+            console.log(res);
+            navigate("/");
+        }).catch((err) => {
+            console.error(err);
+            alert('Registration failed (placeholder)');
+        })
 
-      if (res.data.message === "User registered successfully") {
-  navigate("/");
-} else {
-  alert(res.data.message || "Registration failed");
-}
+        try {
+            // Placeholder: integrate real registration logic / API call.
 
-    } catch (err) {
-      console.error("Registration error:", err.response?.data || err.message);
-      alert("Something went wrong, please try again.");
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setSubmitting(false);
+        }
     }
-  };
 
-  return (
-    <div className="auth-container">
-      <ThemeToggle />
-      <div className="auth-card">
-        <h2 className="auth-title">Create Account</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="firstname" className="form-label">First Name</label>
-            <input
-              type="text"
-              id="firstname"
-              name="firstname"
-              className="form-input"
-              placeholder="Enter your first name"
-              value={formData.firstname}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="lastname" className="form-label">Last Name</label>
-            <input
-              type="text"
-              id="lastname"
-              name="lastname"
-              className="form-input"
-              placeholder="Enter your last name"
-              value={formData.lastname}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="email" className="form-label">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              className="form-input"
-              placeholder="Enter your email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="password" className="form-label">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              className="form-input"
-              placeholder="Create a password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="confirmpassword" className="form-label">Confirm Password</label>
-            <input
-              type="password"
-              id="confirmpassword"
-              name="confirmpassword"
-              className="form-input"
-              placeholder="Confirm your password"
-              value={formData.confirmpassword}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <button type="submit" className="submit-button">
-            Create Account
-          </button>
-        </form>
-        <Link to="/login" className="auth-link">
-          Already have an account? Sign in
-        </Link>
-      </div>
-    </div>
-  );
+    return (
+        <div className="center-min-h-screen">
+            <div className="auth-card" role="main" aria-labelledby="register-heading">
+                <header className="auth-header">
+                    <h1 id="register-heading">Create account</h1>
+                    <p className="auth-sub">Join us and start exploring.</p>
+                </header>
+                <form className="auth-form" onSubmit={handleSubmit} noValidate>
+                    <div className="field-group">
+                        <label htmlFor="email">Email</label>
+                        <input id="email" name="email" type="email" autoComplete="email" placeholder="you@example.com" value={form.email} onChange={handleChange} required />
+                    </div>
+                    <div className="grid-2">
+                        <div className="field-group">
+                            <label htmlFor="firstname">First name</label>
+                            <input id="firstname" name="firstname" placeholder="Jane" value={form.firstname} onChange={handleChange} required />
+                        </div>
+                        <div className="field-group">
+                            <label htmlFor="lastname">Last name</label>
+                            <input id="lastname" name="lastname" placeholder="Doe" value={form.lastname} onChange={handleChange} required />
+                        </div>
+                    </div>
+                    <div className="field-group">
+                        <label htmlFor="password">Password</label>
+                        <input id="password" name="password" type="password" autoComplete="new-password" placeholder="Create a password" value={form.password} onChange={handleChange} required minLength={6} />
+                    </div>
+                    <button type="submit" className="primary-btn" disabled={submitting}>
+                        {submitting ? 'Creating...' : 'Create Account'}
+                    </button>
+                </form>
+                <p className="auth-alt">Already have an account? <Link to="/login">Sign in</Link></p>
+            </div>
+        </div>
+    );
 };
 
 export default Register;

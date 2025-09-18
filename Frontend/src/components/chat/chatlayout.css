@@ -1,0 +1,183 @@
+/* Base layout */
+.chat-layout {
+    display: flex;
+    height: 100dvh;
+    background: var(--color-bg);
+    font-size: var(--text-base);
+}
+
+.chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100dvh;
+    padding-top: calc(52px + env(safe-area-inset-top, 0));
+    position: relative;
+}
+
+@media (min-width: 960px) {
+    .chat-main {
+        padding-top: 0;
+    }
+}
+
+@media (min-width: 960px) {
+    .chat-layout {
+        flex-direction: row;
+    }
+}
+
+@media (max-width: 959px) {
+    .chat-layout {
+        flex-direction: column;
+    }
+}
+
+/* Minimal monochrome variant (applied when parent has .minimal) */
+.chat-layout.minimal {
+    --color-bg: #000;
+    --color-bg-alt: #0d0d0d;
+    --color-surface: #050505;
+    --color-border: #1e1e1e;
+    --color-text: #f5f5f5;
+    --color-text-muted: #7a7a7a;
+    --color-accent: #fff;
+}
+
+.chat-layout.minimal {
+    background: linear-gradient(180deg, #000 0%, #050505 60%, #050505 100%);
+    color: var(--color-text);
+}
+
+.chat-layout.minimal .chat-main {
+    background: transparent;
+}
+
+.chat-layout.minimal .chat-mobile-bar {
+    background: #000;
+    border-color: #1e1e1e;
+}
+
+.chat-layout.minimal .chat-icon-btn {
+    background: #0d0d0d;
+    border-color: #1f1f1f;
+    color: var(--color-text);
+}
+
+.chat-layout.minimal .chat-icon-btn:hover {
+    background: #141414;
+}
+
+.chat-layout.minimal .chat-sidebar {
+    background: #000;
+    border-color: #1e1e1e;
+}
+
+.chat-layout.minimal .sidebar-header {
+    border-color: #1e1e1e;
+}
+
+.chat-layout.minimal .small-btn {
+    background: #111;
+    border-color: #2a2a2a;
+}
+
+.chat-layout.minimal .small-btn:hover {
+    background: #181818;
+}
+
+.chat-layout.minimal .chat-list-item {
+    background: #0d0d0d;
+    border-color: #1a1a1a;
+}
+
+.chat-layout.minimal .chat-list-item:hover {
+    background: #141414;
+}
+
+.chat-layout.minimal .chat-list-item.active {
+    border-color: #fff;
+    box-shadow: 0 0 0 1px #fff;
+}
+
+.chat-layout.minimal .msg-bubble {
+    background: #0d0d0d;
+    border-color: #1e1e1e;
+    color: var(--color-text);
+}
+
+.chat-layout.minimal .msg-user .msg-bubble {
+    background: #111;
+    border-color: #2a2a2a;
+    color: #f8f8f8;
+}
+
+.chat-layout.minimal .msg-role {
+    color: #5a5a5a;
+}
+
+.chat-layout.minimal .msg-error .msg-bubble {
+    border-color: #ff4d4d;
+    color: #ff4d4d;
+}
+
+/* Welcome (empty state) */
+.chat-welcome {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    pointer-events: none;
+    text-align: center;
+}
+
+.chat-welcome h1 {
+    font-size: 2.75rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0;
+    background: linear-gradient(90deg, #fafafa, #5a5a5a);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.chat-welcome p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #6a6a6a;
+    max-width: 420px;
+    line-height: 1.4;
+}
+
+.chat-welcome .chip {
+    background: #111;
+    border: 1px solid #1f1f1f;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #b5b5b5;
+}
+
+/* Scrollbar minimal styling (webkit) */
+.chat-layout.minimal .messages::-webkit-scrollbar {
+    width: 10px;
+}
+
+.chat-layout.minimal .messages::-webkit-scrollbar-track {
+    background: #000;
+}
+
+.chat-layout.minimal .messages::-webkit-scrollbar-thumb {
+    background: #1e1e1e;
+    border-radius: 6px;
+}
+
+.chat-layout.minimal .messages::-webkit-scrollbar-thumb:hover {
+    background: #2a2a2a;
+}

@@ -1,0 +1,42 @@
+/* Global variables and container styles */
+:root {
+  --primary-bg: #f5f6fa;
+  --sidebar-bg: #222c36;
+  --sidebar-text: #fff;
+  --sidebar-active: #3b4a5a;
+  --chat-bg: #fff;
+  --user-msg-bg: #d1e7dd;
+  --ai-msg-bg: #e9ecef;
+  --input-bg: #f1f3f4;
+  --border-radius: 12px;
+  --transition: 0.2s;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: var(--primary-bg);
+}
+
+.home-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--chat-bg);
+  border-radius: var(--border-radius);
+  margin: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* Desktop styles */
+@media (min-width: 900px) {
+  .home-container {
+    flex-direction: row;
+  }
+}

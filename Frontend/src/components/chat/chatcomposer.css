@@ -1,0 +1,107 @@
+/* === ChatGPT-like bottom composer === */
+/* Centered, max-width column, floating pill with subtle border */
+
+.composer {
+    position: sticky; /* stays above scroll end */
+    bottom: 0;
+    width: 100%;
+    padding: 24px 0 32px; /* vertical breathing room */
+    display: flex;
+    justify-content: center;
+    background: linear-gradient(to top, rgba(0,0,0,.85), rgba(0,0,0,0));
+    backdrop-filter: blur(12px);
+}
+
+.composer-surface {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    max-width: 820px; /* ChatGPT input width vibes */
+    width: 100%;
+    margin: 0 32px;
+    background: #1f1f20;
+    border: 1px solid #3a3a3c;
+    border-radius: 24px;
+    padding: 12px 14px 14px 18px; /* top tighter than bottom for hint room */
+    position: relative;
+    transition: border-color .15s, background-color .15s, box-shadow .15s;
+}
+
+.composer-surface:focus-within {
+    background: #232324;
+    border-color: #565759;
+    box-shadow: 0 0 0 1px #565759, 0 0 0 4px rgba(86,87,89,.25);
+}
+
+.composer-field { flex: 1; position: relative; }
+
+.composer-input {
+    width: 100%;
+    resize: none;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #f5f5f5;
+    font: inherit;
+    line-height: 1.5;
+    max-height: 260px;
+    padding: 0 0 18px 0; /* space for hint overlay */
+}
+
+.composer-input::placeholder { color: #8d8d91; }
+
+.composer-hint {
+    position: absolute;
+    left: 2px;
+    bottom: 2px;
+    font-size: 11px;
+    color: #5f6165;
+    pointer-events: none;
+    user-select: none;
+    line-height: 1.1;
+    font-weight: 500;
+}
+
+/* Icon-only circular send button */
+.send-btn.icon-btn {
+    --size: 40px;
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #3a3a3c;
+    border: 1px solid #525255;
+    color: #f1f1f2;
+    cursor: pointer;
+    transition: background-color .15s, border-color .15s, transform .15s;
+    flex-shrink: 0;
+}
+
+.send-btn.icon-btn:hover:not(:disabled) { background:#4a4a4d; }
+.send-btn.icon-btn:active:not(:disabled) { background:#343436; transform:translateY(1px); }
+.send-btn.icon-btn:disabled { opacity:.35; cursor: default; }
+.send-btn.icon-btn:focus-visible { outline:none; box-shadow:0 0 0 2px #fff,0 0 0 4px #000; }
+
+.send-icon { display:inline-flex; }
+
+/* Slide arrow a tad */
+.send-btn.icon-btn:hover:not(:disabled) .send-icon { transform: translateX(1px); }
+.send-icon svg { transition: transform .15s; }
+
+/* Compact adjustments for very narrow screens */
+@media (max-width:600px) {
+    .composer { padding: 16px 0 26px; }
+    .composer-surface { margin:0 12px; border-radius:20px; padding:10px 12px 12px 16px; }
+    .send-btn.icon-btn { --size:36px; }
+}
+
+@media (max-width:420px) {
+    .composer-hint { display:none; }
+    .composer-input { padding-bottom:0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .send-btn.icon-btn, .send-icon svg { transition: none; }
+}
